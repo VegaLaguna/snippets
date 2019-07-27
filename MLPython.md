@@ -60,9 +60,9 @@ regd.fit(X,y)
 # Random Forest
 ```python
 # Load the library
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 # Create an instance
-clf = RandomForestClassifier(max_depth=4)
+clf = RandomForestRegressor(max_depth=4)
 # Fit the data
 clf.fit(X,y)
 ```
@@ -124,9 +124,24 @@ clf = SVC(kernel="linear",C=10)
 clf.fit(X,y)
 ```
 # Random Forest
+```python
+# Load the library
+from sklearn.ensemble import RandomForestClassifier
+# Create an instance
+clf = RandomForestClassifier(max_depth=4)
+# Fit the data
+clf.fit(X,y)
+```
 
 # Gradient Boosting Tree
-
+```python
+# Load the library
+from sklearn.ensemble import GradientBoostingClassifier
+# Create an instance
+clf = GradientBoostingClassifier(max_depth=4)
+# Fit the data
+clf.fit(X,y)
+```
 
 
 # Train-test split
@@ -248,4 +263,15 @@ reg_test.fit(X,y)
 reg_test.best_score_
 reg_test.best_estimator_
 reg_test.best_params_
+```
+## Randomized Grid Search
+```python
+from sklearn.model_selection import RandomizedSearchCV
+reg = RandomizedSearchCV(DecisionTreeRegressor(),
+                  param_distributions={"max_depth":np.arange(2,8),
+                              "min_samples_leaf":[10,30,50,100]},
+                  cv=5,
+                  scoring="neg_mean_absolute_error",
+                  n_iter=5      )
+reg.fit(X,y)
 ```
