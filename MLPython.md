@@ -95,8 +95,8 @@ Main parameters:
 - _n_neighbors_: cantidad de elementos en el grupo (NO es el número de grupos como en K-Means)
 - _weights_: función de peso para determinar cuales son los puntos más cercanos (se puede definir una nueva función)
 
-      - uniform: distribución uniforme de los pesos
-      - distance: los puntos más cercanos pesan más -> más sensible a outliers
+     - uniform: distribución uniforme de los pesos
+     - distance: los puntos más cercanos pesan más -> más sensible a outliers
 
 ```python
 # Load the library
@@ -116,8 +116,7 @@ y_pred_regKN = regKN.predict(X_test)
 ## SVM Support Vector Machine
 
 Main parameters:
-- _kernel_: tipo de función que se le aplica a los datos para aumentar la dimensión y que sea linealmente separable
-      - linear, poly, rbf, sigmoid,...
+- _kernel_: tipo de función que se le aplica a los datos para aumentar la dimensión y que sea linealmente separable: linear, poly, rbf, sigmoid,...
 - _C_: parámetro de regularización (L2 Ridge), inversamente proporcionales
 - _epsilon_: margen de seguridad donde no se le aplica penalización 
 
@@ -390,11 +389,11 @@ cross_val_score(clLR,X,y,cv=5,scoring = 'accuracy').mean()
 Se eligen los grupos dependiendo de la cantidad de vecinos más cercanos (k)
 
 Main parameters: 
-- n_neighbors: cantidad de elementos en el grupo (NO es el número de grupos como en K-Means)
-- weights: función de peso para determinar cuales son los puntos más cercanos (se puede definir una nueva función)
+- _n_neighbors_: cantidad de elementos en el grupo (NO es el número de grupos como en K-Means)
+- _weights_: función de peso para determinar cuales son los puntos más cercanos (se puede definir una nueva función)
 
-      - uniform: distribución uniforme de los pesos
-      - distance: los puntos más cercanos pesan más -> más sensible a outliers
+     - uniform: distribución uniforme de los pesos
+     - distance: los puntos más cercanos pesan más -> más sensible a outliers
 
 
 ### Sin GridSearchCV
@@ -447,12 +446,15 @@ Por eso cuando los datos no se reparten de manera lineal hay que aplicarle funci
 Crea un margen de seguridad buscando la linea que quede más lejos de los puntos.
 
 Main parameters:
-- C: Sum of Error Margins
-- kernel:
-      - linear: line of separation
-      - rbf: circle of separation
+- _C_: Sum of Error Margins
+- _kernel_:
+
+     - linear: line of separation
+     
+     - rbf: circle of separation
             * Additional paramater -> gamma: Inverse of the radius
-      - poly: curved line of separation
+            
+     - poly: curved line of separation
             * Additional paramater -> degree: Degree of the polynome
 
 
@@ -497,8 +499,8 @@ y_pred_clSVC = clSVC_best.predict(X_test)
 ## Decision Tree
 
 Main parameters:
-- max_depth: por defecto es None -> los nodos se expanden hasta que las hojas son puras o hasta que contienen min_samples_leaf elementos
-- min_samples_leaf: mínimo número de elementos en un nodo
+- _max_depth_: por defecto es None -> los nodos se expanden hasta que las hojas son puras o hasta que contienen min_samples_leaf elementos
+- _min_samples_leaf_: mínimo número de elementos en un nodo
 
 
 ### Sin GridSearchCV
@@ -546,9 +548,9 @@ y_pred_clDT = clDT_best.predict(X_test)
 ## Random Forest
 
 Main parameters:
-- max_depth
-- min_samples_leaf
-- n_estimators: número de árboles en el forest
+- _max_depth_
+- _min_samples_leaf_
+- _n_estimators_: número de árboles en el forest
 
 ```python
 # Import Library
@@ -613,7 +615,7 @@ y_pred_clGB = clGB_best.predict(X_test)
 # Metrics
 ## Classification
 
-!(https://www.researchgate.net/publication/328148379/figure/fig1/AS:679514740895744@1539020347601/Model-performance-metrics-Visual-representation-of-the-classification-model-metrics.png)
+![Confusion matrix](https://www.researchgate.net/publication/328148379/figure/fig1/AS:679514740895744@1539020347601/Model-performance-metrics-Visual-representation-of-the-classification-model-metrics.png)
 
 
 ### Accuracy
@@ -631,9 +633,10 @@ cross_val_score(clf,X,y,scoring="accuracy")
 
 ### Precision and Recall
 
-Precision: proporción de los valores predichos que ha sido acertada (TP)/(TP+FP) _(mis 1 predicted)_
+__Precision__: proporción de los valores predichos que ha sido acertada _(mis 1 predicted)_: (TP)/(TP+FP)
 
-Recall: proporción de los valores correctos (1) que ha sido predicha correctamente (TP)/(TP+FN) _(los 1 true)_
+__Recall__: proporción de los valores correctos (1) que ha sido predicha correctamente _(los 1 true)_: (TP)/(TP+FN) 
+
 ```python
 # Import metrics
 from sklearn.metrics import precision_score, recall_score
@@ -669,5 +672,3 @@ auc(fp,tp)
 # If using Cross Validation
 cross_val_score(cl,X,y,scoring="roc_auc")
 ```
-
-
