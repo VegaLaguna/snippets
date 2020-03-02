@@ -542,23 +542,13 @@ y_pred_clDT = clDT_best.predict(X_test)
 
 
 
-# Random Forest
+## Random Forest
 
 Main parameters:
 - max_depth
 - min_samples_leaf
 - n_estimators: número de árboles en el forest
 
-```python
-# Load the library
-from sklearn.ensemble import RandomForestClassifier
-# Create an instance
-clf = RandomForestClassifier(max_depth=4)
-# Fit the data
-clf.fit(X,y)
-```
-
-# Gradient Boosting Tree
 ```python
 # Import Library
 from sklearn.model_selection import GridSearchCV
@@ -575,54 +565,108 @@ clRF_GS = GridSearchCV(RandomForestClassifier(n_jobs=-1),
                      
                      
 # Fit will test all of the combinations
-clfRF .fit(X,y)
+clfRF_GS.fit(X_train,y_train)
 
+# Print best parameters
+print(clfRF_GS.best_params_)
+print(clfRF_GS.best_score_)
 
-print(clfRF.best_params_)
-print(clfRF.best_score_)
+# Take best estimator (best model)
+clfRF_best = clfRF_GS.best_estimator_
+
+# Do predictions
+y_pred_clRF = clfRF_best.predict(X_test)
 ```
 
 
 
-
-## Classification
-### Accuracy
+## Gradient Boosting Tree
 ```python
-# With Metrics
+# Import Library
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import GradientBoostingClassifier
+
+# Create instance
+clGB_GS = GridSearchCV(GradientBoostingClassifier(n_estimators=100),
+                        param_grid={"max_depth":np.arange(2,10),
+                                    "learning_rate":np.arange(1,10)/10},
+                        cv=5,
+                        scoring="neg_mean_absolute_error")
+                        verbose=9)   
+                              
+# Fit will test all of the combinations
+clGB_GS.fit(X_train,y_train)
+
+# Print best parameters
+print(clGB_GS.best_params_)
+print(clGB_GS.best_score_)
+
+# Take best estimator (best model)
+clGB_best = clGB_GS.best_estimator_
+
+# Do predictions
+y_pred_clGB = clGB_best.predict(X_test)
+```
+
+
+# Metrics
+## Classification
+
+!(https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.researchgate.net%2Ffigure%2FModel-performance-metrics-Visual-representation-of-the-classification-model-metrics_fig1_328148379&psig=AOvVaw0A_MxFnUQ304ltL9VfX6bJ&ust=1583243442675000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCKjFs9r3--cCFQAAAAAdAAAAABAD)
+
+
+### Accuracy
+
+Es la proporción de todo lo que he acertado frente a la población (TP+TN)/(TP+FN+FP+TN)
+```python
+# Import metrics
 from sklearn.metrics import accuracy_score
-accuracy_score(y_test,clf.predict(X_test))
-# Cross Validation
+accuracy_score(y_test,cl.predict(X_test))
+
+# If using Cross Validation
 cross_val_score(clf,X,y,scoring="accuracy")
 ```
 
+
 ### Precision and Recall
+
+Precision: proporción de los valores predichos que ha sido acertada (TP)/(TP+FP) _(mis 1 predicted)_
+
+Recall: proporción de los valores correctos (1) que ha sido predicha correctamente (TP)/(TP+FN) _(los 1 true)_
 ```python
-# Metrics
+# Import metrics
 from sklearn.metrics import precision_score, recall_score
 from sklearn.metrics import confusion_matrix, classification_report
-precision_score(y_test,clf.predict(X_test))
-classification_report(y_test,clf.predict(X_test))
-# Cross Validation
-cross_val_score(clf,X,y,scoring="precision")
-cross_val_score(clf,X,y,scoring="recall")
+precision_score(y_test,cl.predict(X_test))
+classification_report(y_test,cl.predict(X_test))
+
+# If using Cross Validation
+cross_val_score(cl,X,y,scoring="precision")
+cross_val_score(cl,X,y,scoring="recall")
 ```
+
+
 ### ROC curve
 ```python
-# Load the library
+# Import metrics
 from sklearn.metrics import roc_curve
+
 # We chose the target
-target_pos = 1 # Or 0 for the other class
+target_pos = 1  # Or 0 for the other class
 fp,tp,_ = roc_curve(y_test,pred[:,target_pos])
 plt.plot(fp,tp)
 ```
+
+
 #### AUC
 ```python
-# Metrics
+# Import metrics
 from sklearn.metrics import roc_curve, auc
 fp,tp,_ = roc_curve(y_test,pred[:,1])
 auc(fp,tp)
-# Cross Validation
-cross_val_score(clf,X,y,scoring="roc_auc")
+
+# If using Cross Validation
+cross_val_score(cl,X,y,scoring="roc_auc")
 ```
 
 
