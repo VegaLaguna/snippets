@@ -5,10 +5,10 @@ Los Snippets son trozos de código, o chuletas, en este caso sobre Machine Learn
 
 # Dataset preparation
 ```python
-# Las variables independientes X se tienen que dar en forma de frame de 2 dimensiones
+# Las variables independientes X se tienen que dar en forma de dataframe de 2 dimensiones
 X = df[['col1','col2','col3']] 
 
-# La variable dependiente y (target) viene en forma de vector
+# La variable dependiente y (target) viene en forma de vector (serie)
 y = df['col_target']
 ```
 
@@ -68,76 +68,290 @@ cross_val_score(reg,X,y,cv=5,scoring="neg_mean_squared_error")
 
 ## Linear Regression
 
-### Preparing data
-```python
-# Input
-X = df[['TotalSF']] # pandas DataFrame
-# Label
-y = df["SalePrice"] # pandas Series
-```
+Parameters: none
 
-### Load the library
 ```python
+# Load the library
 from sklearn.linear_model import LinearRegression
-```
 
-### Create an instance of the model
-```python
-reg = LinearRegression()
-```
+# Create an instance of the model
+regL = LinearRegression()
 
-### Fit the regressor
-```python
-reg.fit(X,y)
-```
+# Fit the regressor
+regL.fit(X_train,y_train)
 
-### Do predictions
-```python
-reg.predict([[2540],[3500],[4000]])
+# Do predictions
+y_pred_regL = regL.predict(X_test)
+other_pred_regL = regL.predict([[2540],[3500],[4000]])
 ```
 
 ## K nearest neighbors
+
+KNN es más visual para clasificación pero también se puede usar en regresión.
+Elige los puntos más cercanos al punto X (cuya y queremos predecir) y luego predice la y como la media de las y de esos puntos.
+
+Main parameters: 
+- n_neighbors: cantidad de elementos en el grupo (NO es el número de grupos como en K-Means)
+- weights: función de peso para determinar cuales son los puntos más cercanos (se puede definir una nueva función)
+      - uniform: distribución uniforme de los pesos
+      - distance: los puntos más cercanos pesan más -> más sensible a outliers
+
 ```python
 # Load the library
 from sklearn.neighbors import KNeighborsRegressor
+
 # Create an instance
-regk = KNeighborsRegressor(n_neighbors=2)
+regKN = KNeighborsRegressor(n_neighbors=2)
+
 # Fit the data
-regk.fit(X,y)
+regKN.fit(X_train,y_train)
+
+# Do predictions
+y_pred_regKN = regKN.predict(X_test)
 ```
 
+
+## SVM Support Vector Machine
+
+Main parameters:
+- kernel: tipo de función que se le aplica a los datos para aumentar la dimensión y que sea linealmente separable
+      - linear, poly, rbf, sigmoid,...
+- C: parámetro de regularización (L2 Ridge), inversamente proporcionales
+- epsilon: margen de seguridad donde no se le aplica penalización 
+
+```python
+# Load the library
+from sklearn.svm import SVR
+
+# Create an instance
+regSVR = SVR(kernel="rbf",C=0.1)
+
+# Fit the data
+regSVR.fit(X_train,y_train)
+
+# Do predictions
+y_pred_regSVR = regSVR.predict(X_test)
+```
+
+
+
 ## Decision Tree
-Main parameters
-* Max_depth: Number of Splits
-* Min_samples_leaf: Minimum number of observations per leaf
+
+Se elige el atributo (valor de una columna) que consigue dividir la muestra de la mejor manera.
+
+Main parameters:
+- max_depth: por defecto es None -> los nodos se expanden hasta que las hojas son puras o hasta que contienen min_samples_leaf elementos
+- min_samples_leaf: mínimo número de elementos en un nodo
 
 ```python
 # Load the library
 from sklearn.tree import DecisionTreeRegressor
+
 # Create an instance
-regd = DecisionTreeRegressor(max_depth=3)
+regDTR = DecisionTreeRegressor(max_depth=3)
+
 # Fit the data
-regd.fit(X,y)
-```
-# Random Forest
-```python
-# Load the library
-from sklearn.ensemble import RandomForestRegressor
-# Create an instance
-clf = RandomForestRegressor(max_depth=4)
-# Fit the data
-clf.fit(X,y)
+regDTR.fit(X_train,y_train)
 ```
 
-# Gradient Boosting Tree
+
+# Cross Validation and testing parameters
+
+Cuando tenemos modelos más complejos dependiendo de muchos hiperparámetros necesitamos un método de validación cruzada que haga modelos combinándolos unos con otros:
+- __GridSearchCV__: prueba los parámetros todos con todos
+- __RandomSearchCV__: prueba aleatoriamente la combinación de unos parámetros con otros 
+
+
+## Grid Search
+```python
+# Import libraries for GridSearch and model
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsRegressor
+
+# Create an instance
+# GridSearch hará la combinación de parámetros que estén dentro de param_grid
+regKN_GS = GridSearchCV(KNeighborsRegressor(),
+                        param_grid={"n_neighbors":np.arange(3,50)},  
+                        cv = 5,
+                        scoring = "neg_mean_absolute_error")
+                        
+# Fit will test all of the combinations
+regKN_GS.fit(X_train,y_train)
+
+# Print best parameters
+print(regKN_GS.best_score_)
+print(regKN_GS.best_params_)
+
+# Take best estimator (best model)
+regKN_best = regKN_GS.best_estimator_
+
+# Do predictions
+y_pred_regKN = regKN_best.predict(X_test)
+```
+
+
+## Randomized Grid Search
+```python
+# Import libraries
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.tree import DecisionTreeRegressor
+
+# Create an instance
+# Trabaja como GridSearch pero hay que definir el número de iteraciones aleatorias entre parámetros con n_iter
+regDT_RS = RandomizedSearchCV(DecisionTreeRegressor(),
+                              param_distributions={"max_depth":np.arange(2,8),
+                                                   "min_samples_leaf":[10,30,50,100]},
+                              cv=5, 
+                              scoring="neg_mean_absolute_error",                 
+                              n_iter=5)
+
+# Fit will test all of the combinations
+regDT_RS.fit(X_train,y_train)
+
+# Print best parameters
+print(regDT_RS.best_score_)
+print(regDT_RS.best_params_)
+
+# Take best estimator (best model)
+regDT_best = regDT_RS.best_estimator_
+
+# Do predictions
+y_pred_regDT = regDT_best.predict(X_test)
+
+```
+
+
+## Random Forest
+
+Main parameters:
+- max_depth
+- min_samples_leaf
+- n_estimators: número de árboles en el forest
+
+```python
+# Import the library
+from sklearn.ensemble import RandomForestRegressor
+
+# Create an instance
+# verbose es para que imprima mensajes de lo que va haciendo (lo vuelve más lento)
+regRF_GS = GridSearchCV(RandomForestRegressor(),n_jobs=-1,
+                        param_grid = {"min_samples_leaf":[1,2,3],
+                                       "max_depth":np.arange(3,20),
+                                       "n_estimators":[500]},
+                  cv=5,
+                  scoring="neg_mean_absolute_error",
+                  verbose=9)
+      
+# Fit will test all of the combinations
+regRF_GS.fit(X_train,y_train)
+
+# Print best parameters
+print(regRF_GS.best_params_)
+print(regRF_GS.best_score_)
+
+# Take best estimator (best model)
+regRF_best = regRF_GS.best_estimator_
+
+# Do predictions
+y_pred_regRF = regRF_best.predict(X_test)
+```
+
+
+
+# XGBooster
+
+Primero hay que instalarlo: #conda install -c anaconda py-xgboost
+
+Main parameters: 
+- max_depth:
+- eta (learning rate): después de cada boosting se pueden obtener los pesos de los features, el eta los modifica para que no haya overfitting
+
 ```python
 # Load the library
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import GridSearchCV
+from xgboost.sklearn import XGBRegressor
+
 # Create an instance
-clf = GradientBoostingClassifier(max_depth=4)
+xgb1 = XGBRegressor()
+parameters = {'nthread':[4], 
+              'learning_rate': [0.01, 0.05, 0.1], 
+              'max_depth':np.arange(3,10),
+              'silent': [1],
+              'subsample': [0.7],
+              'colsample_bytree':np.arange(0.3,1),
+              'n_estimators': [100]}
+
+regXGBGS = GridSearchCV(xgb1,
+                        parameters,
+                        cv = 5,
+                        n_jobs = -1,
+                        scoring="neg_mean_absolute_error",
+                        verbose=9)
+
 # Fit the data
-clf.fit(X,y)
+regXGBGS.fit(X_train,y_train)
+
+# Print best parameters
+print(regXGBGS.best_params_)
+print(regXGBGS.best_score_)
+
+# Take best estimator (best model)
+regXGBGS_best = regXGBGS.best_estimator_
+
+# Do predictions
+y_regXGBGS_pred = regXGBGS_best.predict(X_test)
 ```
+
+
+
+# Métricas
+## Regresión
+
+### MAE
+```python
+# Load the scorer
+from sklearn.metrics import mean_absolute_error
+# Use against predictions
+mean_absolute_error(reg.predict(X_test),y_test)
+```
+
+### MAPE
+```python
+np.mean(np.abs(reg.predict(X_test)-y_test)/y_test)
+```
+
+### RMSE
+```python
+# Load the scorer
+from sklearn.metrics import mean_squared_error
+# Use against predictions (we must calculate the square root of the MSE)
+np.sqrt(mean_squared_error(reg.predict(X_test),y_test))
+```
+
+### Correlation
+```python
+# Direct Calculation
+np.corrcoef(reg.predict(X_test),y_test)[0][1]
+# Custom Scorer
+from sklearn.metrics import make_scorer
+def corr(pred,y_test):
+return np.corrcoef(pred,y_test)[0][1]
+# Put the scorer in cross_val_score
+cross_val_score(reg,X,y,cv=5,scoring=make_scorer(corr))
+```
+
+### Bias
+```python
+# Direct Calculation
+np.mean(reg.predict(X_test)-y_test)
+# Custom Scorer
+from sklearn.metrics import make_scorer
+def bias(pred,y_test):
+return np.mean(pred-y_test)
+# Put the scorer in cross_val_score
+cross_val_score(reg,X,y,cv=5,scoring=make_scorer(bias))
+```
+
 
 # Classification
 ## Logistic regression
@@ -207,53 +421,7 @@ clf.fit(X,y)
 
 
 
-# Metrics
-## Regression
 
-### MAE
-```python
-# Load the scorer
-from sklearn.metrics import mean_absolute_error
-# Use against predictions
-mean_absolute_error(reg.predict(X_test),y_test)
-```
-
-### MAPE
-```python
-np.mean(np.abs(reg.predict(X_test)-y_test)/y_test)
-```
-
-### RMSE
-```python
-# Load the scorer
-from sklearn.metrics import mean_squared_error
-# Use against predictions (we must calculate the square root of the MSE)
-np.sqrt(mean_squared_error(reg.predict(X_test),y_test))
-```
-
-### Correlation
-```python
-# Direct Calculation
-np.corrcoef(reg.predict(X_test),y_test)[0][1]
-# Custom Scorer
-from sklearn.metrics import make_scorer
-def corr(pred,y_test):
-return np.corrcoef(pred,y_test)[0][1]
-# Put the scorer in cross_val_score
-cross_val_score(reg,X,y,cv=5,scoring=make_scorer(corr))
-```
-
-### Bias
-```python
-# Direct Calculation
-np.mean(reg.predict(X_test)-y_test)
-# Custom Scorer
-from sklearn.metrics import make_scorer
-def bias(pred,y_test):
-return np.mean(pred-y_test)
-# Put the scorer in cross_val_score
-cross_val_score(reg,X,y,cv=5,scoring=make_scorer(bias))
-```
 ## Classification
 ### Accuracy
 ```python
@@ -294,37 +462,4 @@ auc(fp,tp)
 cross_val_score(clf,X,y,scoring="roc_auc")
 ```
 
-# Cross Validation adn testing parameters
 
-## Cross Validation
-```python
-# Load the library
-from sklearn.model_selection import cross_val_score
-# We calculate the metric for several subsets (determine by cv)
-# With cv=5, we will have 5 results from 5 training/test
-cross_val_score(reg,X,y,cv=5,scoring="neg_mean_squared_error")
-```
-## Grid Search
-```python
-from sklearn.model_selection import GridSearchCV
-from sklearn.neighbors import KNeighborsRegressor
-reg_test = GridSearchCV(KNeighborsRegressor(),
- param_grid={"n_neighbors":np.arange(3,50)})
-# Fit will test all of the combinations
-reg_test.fit(X,y)
-# Best estimator and best parameters
-reg_test.best_score_
-reg_test.best_estimator_
-reg_test.best_params_
-```
-## Randomized Grid Search
-```python
-from sklearn.model_selection import RandomizedSearchCV
-reg = RandomizedSearchCV(DecisionTreeRegressor(),
-                  param_distributions={"max_depth":np.arange(2,8),
-                              "min_samples_leaf":[10,30,50,100]},
-                  cv=5,
-                  scoring="neg_mean_absolute_error",
-                  n_iter=5      )
-reg.fit(X,y)
-```
