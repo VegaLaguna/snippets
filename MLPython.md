@@ -1,6 +1,68 @@
-# Machine Learning Snippets
+# Machine Learning Snippets with Python
 
-Los Snippets son trozos de código, o chuletas, en este caso sobre Machine Learning usando Python.
+Los Snippets son trozos de código, o chuletas, en este caso sobre Machine Learning con Python.
+
+
+# Dataset preparation
+```python
+# Las variables independientes X se tienen que dar en forma de frame de 2 dimensiones
+X = df[['col1','col2','col3']] 
+
+# La variable dependiente y (target) viene en forma de vector
+y = df['col_target']
+```
+
+# Separación Train/Validation/Test
+
+Si se tiene un dataset suficientemente grande conviene separar en train, validation y test (sino solo en train y test):
+- con __Train__: se entrena el modelo
+- con __Validation__: se le aplica el modelo que se ha entrenado y se ajustan los hiperparámetros para mejorar las métricas
+- con __Test__: solo se dan resultados, no se pueden ajustar parámetros dependiendo de los resultados de Test
+
+
+___Nota:___ 
+Mínimo 1000 registros para el conjunto de Validation.
+
+
+___Nota:___ 
+Validation y Test tienen que seguir la misma distribución. 
+
+Si aún teniendo la misma distribución, las métricas son muy distintas, puede ser por un sobreajuste al conjunto de Validation. Se podría arreglar:
+- usando cross-validation
+- usando más datos en el conjunto de Validation
+- cambiando la métrica con la que se compara (porque puede ser muy inestable con pequeños cambios de las distribuciones)
+
+
+
+```python
+# Import the library
+from sklearn.model_selection import train_test_split
+
+# Create 2 groups each with inputs X and targets y
+# test_size fija el porcentaje de datos que se guardarán como Test
+# random_state fija la semilla aleatoria para trabajar siempre con los mismos datos
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state = 42)
+
+# Fit only with training data
+reg.fit(X_train,y_train)
+```
+
+## Cross Validation
+
+```python
+# Load the library
+from sklearn.model_selection import cross_val_score
+
+# We calculate the metric for several subsets
+# Hay que indicarle el modelo (reg),
+# el número de particiones (cv) que se quiere hacer al conjunto 
+# y la métrica que se quiere usar para evaluar los resultados (scoring)
+cross_val_score(reg,X,y,cv=5,scoring="neg_mean_squared_error")
+
+```
+
+
+
 
 # Regression
 
@@ -144,15 +206,6 @@ clf.fit(X,y)
 ```
 
 
-# Train-test split
-```python
-# Load the library
-from sklearn.model_selection import train_test_split
-# Create 2 groups each with input and labels
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10)
-# Fit only with training data
-reg.fit(X_train,y_train)
-```
 
 # Metrics
 ## Regression
