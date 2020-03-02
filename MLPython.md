@@ -85,7 +85,8 @@ y_pred_regL = regL.predict(X_test)
 other_pred_regL = regL.predict([[2540],[3500],[4000]])
 ```
 
-## K nearest neighbors
+
+## K Nearest Neighbors
 
 KNN es más visual para clasificación pero también se puede usar en regresión.
 Elige los puntos más cercanos al punto X (cuya y queremos predecir) y luego predice la y como la media de las y de esos puntos.
@@ -304,13 +305,14 @@ y_regXGBGS_pred = regXGBGS_best.predict(X_test)
 
 
 
-# Métricas
-## Regresión
+# Metrics
+## Regression
 
 ### MAE
 ```python
 # Load the scorer
 from sklearn.metrics import mean_absolute_error
+
 # Use against predictions
 mean_absolute_error(reg.predict(X_test),y_test)
 ```
@@ -324,6 +326,7 @@ np.mean(np.abs(reg.predict(X_test)-y_test)/y_test)
 ```python
 # Load the scorer
 from sklearn.metrics import mean_squared_error
+
 # Use against predictions (we must calculate the square root of the MSE)
 np.sqrt(mean_squared_error(reg.predict(X_test),y_test))
 ```
@@ -332,10 +335,12 @@ np.sqrt(mean_squared_error(reg.predict(X_test),y_test))
 ```python
 # Direct Calculation
 np.corrcoef(reg.predict(X_test),y_test)[0][1]
-# Custom Scorer
+
+# Custom Scorer: si lo queremos meter como métrica en un CV donde no lo hay
 from sklearn.metrics import make_scorer
 def corr(pred,y_test):
 return np.corrcoef(pred,y_test)[0][1]
+
 # Put the scorer in cross_val_score
 cross_val_score(reg,X,y,cv=5,scoring=make_scorer(corr))
 ```
@@ -344,53 +349,113 @@ cross_val_score(reg,X,y,cv=5,scoring=make_scorer(corr))
 ```python
 # Direct Calculation
 np.mean(reg.predict(X_test)-y_test)
+
 # Custom Scorer
 from sklearn.metrics import make_scorer
 def bias(pred,y_test):
 return np.mean(pred-y_test)
+
 # Put the scorer in cross_val_score
 cross_val_score(reg,X,y,cv=5,scoring=make_scorer(bias))
 ```
 
 
+
+
 # Classification
-## Logistic regression
+## Logistic Regression
+
+Cuando la regresión lineal funciona mal se suele pasar a la logística poniendo 0 y 1 según una cota que se decida.
+
 ```python
 # Load the library
 from sklearn.linear_model import LogisticRegression
+
 # Create an instance of the classifier
-clf=LogisticRegression()
+clLR=LogisticRegression()
+
 # Fit the data
-clf.fit(X,y)
+clLR.fit(X_train,y_train)
+
+# Se puede hacer una validación cruzada (la regresión no tiene parámetros para hacer un GridSearch)
+from sklearn.model_selection import cross_val_score
+cross_val_score(clLR,X,y,cv=5,scoring = 'accuracy').mean()
 ```
-## K nearest neighbors
+
+
+
+## K Nearest Neighbors
+
+Se eligen los grupos dependiendo de la cantidad de vecinos más cercanos (k)
+
+Main parameters: 
+- n_neighbors: cantidad de elementos en el grupo (NO es el número de grupos como en K-Means)
+- weights: función de peso para determinar cuales son los puntos más cercanos (se puede definir una nueva función)
+
+      - uniform: distribución uniforme de los pesos
+      - distance: los puntos más cercanos pesan más -> más sensible a outliers
+
+
+### Sin GridSearchCV
 ```python
 # Load the library
 from sklearn.neighbors import KNeighborsClassifier
+
 # Create an instance
-regk = KNeighborsClassifier(n_neighbors=2)
+clKN = KNeighborsClassifier(n_neighbors=2)
+
 # Fit the data
-regk.fit(X,y)
+clKN.fit(X_train,y_train)
 ```
 
-## Decision Tree
+### Con GridSearchCV
 ```python
-# Import library
-from sklearn.tree import DecisionTreeClassifier
+# Import Library
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+
 # Create instance
-clf = DecisionTreeClassifier(min_samples_leaf=20,max_depth=3)
-# Fit the data
-clf.fit(X,y)
+clKN_GS = GridSearchCV(KNeighborsClassifier(),
+                        param_grid = {"n_neighbors":np.arange(3,50)},
+                        cv=5,
+                        scoring="accuracy",
+                        verbose=9)
+                                       
+# Fit will test all of the combinations
+clKN_GS .fit(X_train,y_train)
+
+# Print best parameters
+print(clKN_GS.best_params_)
+print(clKN_GS.best_score_)
+
+# Take best estimator (best model)
+clKN_best = clKN_GS.best_estimator_
+
+# Do predictions
+y_pred_clKN = clKN_best.predict(X_test)
 ```
-## Support Vector Machine
-Parameters:
-* C: Sum of Error Margins
-* kernel:
- * linear: line of separation
- * rbf: circle of separation
-    * Additional param gamma: Inverse of the radius
- * poly: curved line of separation
-    * Additional param degree: Degree of the polynome
+
+
+
+## SVM Support Vector Machine
+
+Clasifica elementos que sean linealmente separables (busca una frontera entre ellos). 
+
+Por eso cuando los datos no se reparten de manera lineal hay que aplicarle funciones que les aumenten dimensiones (porque aumenta la probabilidad de que el conjunto sea linealmente separable).
+
+Crea un margen de seguridad buscando la linea que quede más lejos de los puntos.
+
+Main parameters:
+- C: Sum of Error Margins
+- kernel:
+      - linear: line of separation
+      - rbf: circle of separation
+            * Additional paramater -> gamma: Inverse of the radius
+      - poly: curved line of separation
+            * Additional paramater -> degree: Degree of the polynome
+
+
+### Sin GridSearchCV
 ```python
 # Load the library
 from sklearn.svm import SVC
@@ -399,7 +464,91 @@ clf = SVC(kernel="linear",C=10)
 # Fit the data
 clf.fit(X,y)
 ```
+
+### Con GridSearchCV
+```python
+# Import Library
+from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVC
+
+# Create instance
+clSVC_GS = GridSearchCV(SVC(kernel="poly"),
+                        param_grid = {"C":np.arange(10,100),"degree":np.arange(1,5)},
+                        cv=5,
+                        scoring="accuracy")
+                             
+# Fit will test all of the combinations
+clSVC_GS.fit(X_train,y_train)
+
+# Print best parameters
+print(clSVC_GS.best_params_)
+print(clSVC_GS.best_score_)
+
+# Take best estimator (best model)
+clSVC_best = clSVC_GS.best_estimator_
+
+# Do predictions
+y_pred_clSVC = clSVC_best.predict(X_test)
+```
+
+
+
+## Decision Tree
+
+Main parameters:
+- max_depth: por defecto es None -> los nodos se expanden hasta que las hojas son puras o hasta que contienen min_samples_leaf elementos
+- min_samples_leaf: mínimo número de elementos en un nodo
+
+
+### Sin GridSearchCV
+```python
+# Import library
+from sklearn.tree import DecisionTreeClassifier
+# Create instance
+clf = DecisionTreeClassifier(min_samples_leaf=20,max_depth=3)
+# Fit the data
+clf.fit(X,y)
+```
+
+
+### Con GridSearchCV
+```python
+# Import Library
+from sklearn.model_selection import GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
+
+# Create instance
+clDT_GS = GridSearchCV(DecisionTreeClassifier(),
+                        param_grid = {"min_samples_leaf":np.arange(3,50),
+                                      "max_depth":np.arange(1,4)},
+                        cv=5,
+                        scoring="accuracy",
+                        verbose=9)
+                               
+# Fit will test all of the combinations
+clDT_GS.fit(X_train,y_train)
+
+# Print best parameters
+print(clDT_GS.best_params_)
+print(clDT_GS.best_score_)
+
+# Take best estimator (best model)
+clDT_best = clDT_GS.best_estimator_
+
+# Do predictions
+y_pred_clDT = clDT_best.predict(X_test)
+```
+
+
+
+
 # Random Forest
+
+Main parameters:
+- max_depth
+- min_samples_leaf
+- n_estimators: número de árboles en el forest
+
 ```python
 # Load the library
 from sklearn.ensemble import RandomForestClassifier
@@ -411,12 +560,26 @@ clf.fit(X,y)
 
 # Gradient Boosting Tree
 ```python
-# Load the library
-from sklearn.ensemble import GradientBoostingClassifier
-# Create an instance
-clf = GradientBoostingClassifier(max_depth=4)
-# Fit the data
-clf.fit(X,y)
+# Import Library
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+
+# Create instance
+clRF_GS = GridSearchCV(RandomForestClassifier(n_jobs=-1),
+                        param_grid = {"min_samples_leaf":[10,20,30,40,50],
+                                     "max_depth":np.arange(1,4),
+                                     "n_estimators":[50]},
+                        cv=5,
+                        scoring="accuracy",
+                        verbose=9)
+                     
+                     
+# Fit will test all of the combinations
+clfRF .fit(X,y)
+
+
+print(clfRF.best_params_)
+print(clfRF.best_score_)
 ```
 
 
