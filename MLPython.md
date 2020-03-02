@@ -3,7 +3,7 @@
 Los Snippets son trozos de código, o chuletas, en este caso sobre Machine Learning con Python.
 
 
-# Dataset preparation
+## Dataset preparation
 ```python
 # Las variables independientes X se tienen que dar en forma de dataframe de 2 dimensiones
 X = df[['col1','col2','col3']] 
@@ -12,7 +12,7 @@ X = df[['col1','col2','col3']]
 y = df['col_target']
 ```
 
-# Separación Train/Validation/Test
+## Separación Train/Validation/Test
 
 Si se tiene un dataset suficientemente grande conviene separar en train, validation y test (sino solo en train y test):
 - con __Train__: se entrena el modelo
@@ -92,8 +92,9 @@ KNN es más visual para clasificación pero también se puede usar en regresión
 Elige los puntos más cercanos al punto X (cuya y queremos predecir) y luego predice la y como la media de las y de esos puntos.
 
 Main parameters: 
-- n_neighbors: cantidad de elementos en el grupo (NO es el número de grupos como en K-Means)
-- weights: función de peso para determinar cuales son los puntos más cercanos (se puede definir una nueva función)
+- _n_neighbors_: cantidad de elementos en el grupo (NO es el número de grupos como en K-Means)
+- _weights_: función de peso para determinar cuales son los puntos más cercanos (se puede definir una nueva función)
+
       - uniform: distribución uniforme de los pesos
       - distance: los puntos más cercanos pesan más -> más sensible a outliers
 
@@ -115,10 +116,10 @@ y_pred_regKN = regKN.predict(X_test)
 ## SVM Support Vector Machine
 
 Main parameters:
-- kernel: tipo de función que se le aplica a los datos para aumentar la dimensión y que sea linealmente separable
+- _kernel_: tipo de función que se le aplica a los datos para aumentar la dimensión y que sea linealmente separable
       - linear, poly, rbf, sigmoid,...
-- C: parámetro de regularización (L2 Ridge), inversamente proporcionales
-- epsilon: margen de seguridad donde no se le aplica penalización 
+- _C_: parámetro de regularización (L2 Ridge), inversamente proporcionales
+- _epsilon_: margen de seguridad donde no se le aplica penalización 
 
 ```python
 # Load the library
@@ -141,8 +142,8 @@ y_pred_regSVR = regSVR.predict(X_test)
 Se elige el atributo (valor de una columna) que consigue dividir la muestra de la mejor manera.
 
 Main parameters:
-- max_depth: por defecto es None -> los nodos se expanden hasta que las hojas son puras o hasta que contienen min_samples_leaf elementos
-- min_samples_leaf: mínimo número de elementos en un nodo
+- _max_depth_: por defecto es None -> los nodos se expanden hasta que las hojas son puras o hasta que contienen min_samples_leaf elementos
+- _min_samples_leaf_: mínimo número de elementos en un nodo
 
 ```python
 # Load the library
@@ -225,9 +226,9 @@ y_pred_regDT = regDT_best.predict(X_test)
 ## Random Forest
 
 Main parameters:
-- max_depth
-- min_samples_leaf
-- n_estimators: número de árboles en el forest
+- _max_depth_
+- _min_samples_leaf_
+- _n_estimators_: número de árboles en el forest
 
 ```python
 # Import the library
@@ -264,8 +265,8 @@ y_pred_regRF = regRF_best.predict(X_test)
 Primero hay que instalarlo: #conda install -c anaconda py-xgboost
 
 Main parameters: 
-- max_depth:
-- eta (learning rate): después de cada boosting se pueden obtener los pesos de los features, el eta los modifica para que no haya overfitting
+- _max_depth_
+- _eta_ (learning rate): después de cada boosting se pueden obtener los pesos de los features, el eta los modifica para que no haya overfitting
 
 ```python
 # Load the library
@@ -612,7 +613,7 @@ y_pred_clGB = clGB_best.predict(X_test)
 # Metrics
 ## Classification
 
-!(https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.researchgate.net%2Ffigure%2FModel-performance-metrics-Visual-representation-of-the-classification-model-metrics_fig1_328148379&psig=AOvVaw0A_MxFnUQ304ltL9VfX6bJ&ust=1583243442675000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCKjFs9r3--cCFQAAAAAdAAAAABAD)
+!(https://www.researchgate.net/publication/328148379/figure/fig1/AS:679514740895744@1539020347601/Model-performance-metrics-Visual-representation-of-the-classification-model-metrics.png)
 
 
 ### Accuracy
