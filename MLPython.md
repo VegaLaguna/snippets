@@ -359,7 +359,19 @@ return np.mean(pred-y_test)
 cross_val_score(reg,X,y,cv=5,scoring=make_scorer(bias))
 ```
 
+### R2 score
 
+Mide el coeficiente de correlación (mejor cuando más cercano a 1). Solo tiene sentido para regresiones lineales.
+
+Indica como de bien explican las variables X a la target y
+ 
+```python
+# Load the scorer
+from sklearn.metrics import r2_score
+
+# Use against predictions
+r2_score(reg.predict(X_test),y_test))
+```
 
 
 # Classification
