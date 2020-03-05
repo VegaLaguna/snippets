@@ -261,7 +261,7 @@ y_pred_regRF = regRF_best.predict(X_test)
 
 # XGBooster
 
-Primero hay que instalarlo: #conda install -c anaconda py-xgboost
+Primero hay que instalarlo: conda install -c anaconda py-xgboost
 
 Main parameters: 
 - _max_depth_
