@@ -379,6 +379,13 @@ r2_score(reg.predict(X_test),y_test))
 
 Cuando la regresión lineal funciona mal se suele pasar a la logística poniendo 0 y 1 según una cota que se decida.
 
+Se le puede añadir un parámetro C de regularización:
+
+- Valores de C pequeños: aumenta la regularización -> crea modelos simples que pueden tener underfitting
+     
+- Valores de C grandes: disminuye la regularización y dejamos que el modelo sea más complejo -> puede crear overfitting
+
+
 ```python
 # Load the library
 from sklearn.linear_model import LogisticRegression
@@ -464,10 +471,10 @@ Main parameters:
      - linear: line of separation
      
      - rbf: circle of separation
-            * Additional paramater -> gamma: Inverse of the radius
+            * Additional parameter -> gamma: Inverse of the radius
             
      - poly: curved line of separation
-            * Additional paramater -> degree: Degree of the polynome
+            * Additional parameter -> degree: Degree of the polynome
 
 
 ### Sin GridSearchCV
@@ -513,7 +520,11 @@ y_pred_clSVC = clSVC_best.predict(X_test)
 Main parameters:
 - _max_depth_: por defecto es None -> los nodos se expanden hasta que las hojas son puras o hasta que contienen min_samples_leaf elementos
 - _min_samples_leaf_: mínimo número de elementos en un nodo
-
+- _criterion_: criterio para medir la calidad de un split
+     
+     - gini: mide con la impureza de Gini
+     - entropy: se basa en la ganancia de información
+     
 
 ### Sin GridSearchCV
 ```python
@@ -627,8 +638,7 @@ y_pred_clGB = clGB_best.predict(X_test)
 # Metrics
 ## Classification
 
-![Confusion matrix](https://www.researchgate.net/publication/328148379/figure/fig1/AS:679514740895744@1539020347601/Model-performance-metrics-Visual-representation-of-the-classification-model-metrics.png)
-
+![Confusion matrix](https://static.packt-cdn.com/products/9781838555078/graphics/C13314_06_05.jpg)
 
 ### Accuracy
 
@@ -642,8 +652,8 @@ accuracy_score(y_test,cl.predict(X_test))
 cross_val_score(clf,X,y,scoring="accuracy")
 ```
 
-
 ### Precision and Recall
+
 
 __Precision__: proporción de los valores predichos que ha sido acertada _(mis 1 predicted)_: (TP)/(TP+FP)
 
