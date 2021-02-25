@@ -5,4 +5,4 @@ Trozos de código de Python para que no tengas que ir a Stack Overflow cada dos 
 
 #### Snippets disponibles:
 
-- [Modelos de Machine Learning](#https://github.com/VegaLaguna/snippets/blob/master/MLPython.md)
+- [Modelos de Machine Learning](https://github.com/VegaLaguna/snippets/blob/master/MLPython.md)
